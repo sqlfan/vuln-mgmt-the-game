@@ -158,7 +158,6 @@ const ProgressBar = ({ value, max, colorClass, label, icon: Icon }) => {
         <span className="flex items-center gap-1">{Icon && <Icon size={14} />} {label}</span>
         <span>{Math.round(value)} / {max}</span>
       </div>
-      {/* Changed rounded-full to rounded-none */}
       <div className="h-3 w-full bg-gray-800 rounded-none overflow-hidden border border-gray-700">
         <div 
           className={`h-full transition-all duration-500 ease-out ${colorClass}`}
@@ -174,7 +173,6 @@ const WorkCard = ({ item, capacity, onComplete }) => {
   
   if (item.completed) {
     return (
-      // Changed rounded-lg to rounded-none
       <div className="flex items-center justify-between p-4 rounded-none border border-blue-900/50 bg-blue-900/20 opacity-60">
         <div className="flex items-center gap-3">
           <CheckCircle className="text-blue-400" size={20} />
@@ -186,7 +184,6 @@ const WorkCard = ({ item, capacity, onComplete }) => {
   }
 
   return (
-    // Changed rounded-lg to rounded-none
     <div className="relative flex flex-col p-4 rounded-none border border-blue-500/30 bg-gradient-to-br from-blue-900/10 to-gray-900 shadow-lg transition-all hover:scale-[1.01]">
       <div className="absolute top-0 right-0 p-2 opacity-10">
         <Briefcase size={64} />
@@ -261,14 +258,12 @@ const CveCard = ({ cve, capacity, automationLevel, onPatch, onToggleException })
   }
 
   return (
-    // Changed rounded-lg to rounded-none
     <div className={`relative flex flex-col p-4 rounded-none border ${borderColor} bg-gradient-to-br ${bgGradient} shadow-lg transition-all hover:scale-[1.02]`}>
       {/* Header */}
       <div className="flex justify-between items-start mb-2">
         <div className="flex flex-col">
           <div className="flex items-center gap-2 mb-1">
              <span className={`text-xs font-mono opacity-70 ${textColor}`}>{cve.id}</span>
-             {/* Changed rounded to rounded-none */}
              <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-none flex items-center gap-1 ${isExternal ? 'bg-purple-900/50 text-purple-300 border border-purple-700' : 'bg-blue-900/30 text-blue-300 border border-blue-800'}`}>
                 {isExternal ? <Globe size={10} /> : <Building size={10} />}
                 {cve.context}
@@ -293,13 +288,11 @@ const CveCard = ({ cve, capacity, automationLevel, onPatch, onToggleException })
       {/* SLA / Status Indicators */}
       <div className="flex flex-col gap-1 mb-3">
         {cve.isExcepted ? (
-          // Changed rounded to rounded-none
           <div className="px-2 py-1 bg-yellow-900/30 border border-yellow-700/50 rounded-none flex items-center gap-2 text-yellow-500 text-xs animate-pulse">
             <FileText size={12} />
             <span>EXCEPTION ACTIVE (High Exploit Risk)</span>
           </div>
         ) : (
-          // Changed rounded to rounded-none
           <div className={`px-2 py-1 rounded-none flex items-center justify-between text-xs border ${isOverdueNextTurn ? 'bg-red-900/40 border-red-500 text-red-200' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
             <span className="flex items-center gap-2">
               <Calendar size={12} />
@@ -313,7 +306,6 @@ const CveCard = ({ cve, capacity, automationLevel, onPatch, onToggleException })
         
         {/* Patch Availability Status */}
         {!canPatch && (
-          // Changed rounded to rounded-none
           <div className="px-2 py-1 bg-orange-900/20 border border-orange-800/50 rounded-none flex items-center justify-between text-xs text-orange-400">
              <span className="flex items-center gap-2"><Hammer size={12} /> Patch Development:</span>
              <span className="font-bold">ETA {cve.sprintsToPatch} Sprints</span>
@@ -370,7 +362,6 @@ const CveCard = ({ cve, capacity, automationLevel, onPatch, onToggleException })
 const HelpModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      {/* Changed rounded-2xl to rounded-none */}
       <div className="bg-gray-900 border border-gray-700 rounded-none max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
         <div className="flex justify-between items-center p-6 border-b border-gray-800 bg-gray-900 sticky top-0 z-10">
           <div className="flex items-center gap-3">
@@ -432,7 +423,6 @@ const HelpModal = ({ onClose }) => {
                 <Zap className="text-yellow-400" size={18} /> Strategic Actions
               </h3>
               <div className="grid gap-3">
-                {/* Changed rounded to rounded-none */}
                 <div className="bg-gray-800/50 p-3 rounded-none border border-gray-700">
                   <span className="text-yellow-400 font-bold block mb-1">File Exception (Defer)</span>
                   Stops the SLA timer for a CVE. <br/>
@@ -496,14 +486,13 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
   
-  const logsEndRef = useRef(null);
-
-  const scrollToBottom = () => {
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // Use a ref for the SCROLLABLE CONTAINER, not a dummy element
+  const logsContainerRef = useRef(null);
 
   useEffect(() => {
-    scrollToBottom();
+    if (logsContainerRef.current) {
+      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
+    }
   }, [logs]);
 
   // --- Game Logic ---
@@ -1237,7 +1226,10 @@ export default function App() {
                 <X size={14} className="text-gray-500 hover:text-red-500 cursor-pointer" />
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-gray-800">
+            <div 
+              ref={logsContainerRef}
+              className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-gray-800"
+            >
               {logs.length === 0 && <span className="text-gray-600 italic">No activity recorded...</span>}
               {logs.map((log) => (
                 <div key={log.id} className={`${getLogColor(log.type)}`}>
@@ -1245,7 +1237,6 @@ export default function App() {
                   {log.msg}
                 </div>
               ))}
-              <div ref={logsEndRef} />
             </div>
           </div>
         </div>
